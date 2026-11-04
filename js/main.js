@@ -1,5 +1,6 @@
 (function () {
   var reserved = null;
+  var focusShot = null;
 
   function setupTabs() {
     var tabs = document.querySelectorAll("[data-tab]");
@@ -56,6 +57,7 @@
 
     if (!product) {
       root.innerHTML = chooserHtml(t("chooser_note"));
+      document.title = t("chooser_note") + " — DEROY";
       return;
     }
 
@@ -79,14 +81,14 @@
 
     var success = reserved && reserved.id === id;
     var formBlock = success
-      ? '<p class="form-success">' + t("form_ok").replace("{name}", colorName(id)) + "</p>"
+      ? '<p class="form-success" id="form-success" tabindex="-1" role="status">' + t("form_ok").replace("{name}", colorName(id)) + ' <a href="privacy.html">' + t("form_privacy") + "</a>.</p>"
       : formHtml(t, view === "set" ? "set" : "bag", kept);
 
     root.innerHTML =
       '<div class="product-layout">' +
         '<div>' +
-          '<div class="gallery-main"><img src="' + active.src + '" alt="' + colorName(id) + '"></div>' +
-          '<div class="thumbs">' + thumbs + "</div>" +
+          '<div class="gallery-main"><img src="' + active.src + '" alt="' + escapeAttr(colorName(id) + ", " + active.label) + '"></div>' +
+          '<div class="thumbs" role="group" aria-label="' + escapeAttr(t("gallery_label")) + '">' + thumbs + "</div>" +
         "</div>" +
         '<div class="product-copy">' +
           '<a class="back-link" href="' + backHref + '">' + t(backKey) + "</a>" +
@@ -109,6 +111,7 @@
 
     root.querySelectorAll("[data-shot]").forEach(function (btn) {
       btn.addEventListener("click", function () {
+        focusShot = btn.getAttribute("data-shot");
         var next = new URLSearchParams(window.location.search);
         next.set("view", btn.getAttribute("data-shot"));
         history.replaceState(null, "", "product.html?" + next.toString());
@@ -118,6 +121,15 @@
 
     var form = document.getElementById("reserve-form");
     if (form) form.addEventListener("submit", onReserve);
+
+    var successEl = document.getElementById("form-success");
+    if (successEl) {
+      successEl.focus();
+    } else if (focusShot) {
+      var again = root.querySelector('[data-shot="' + focusShot + '"]');
+      focusShot = null;
+      if (again) again.focus();
+    }
   }
 
   function formHtml(t, interest, kept) {
@@ -126,13 +138,13 @@
     var setSel = (kept.interest || interest) === "set" ? " selected" : "";
     return (
       '<form id="reserve-form" novalidate>' +
-        '<label class="field">' + t("form_name") +
+        '<label class="field">' + t("form_name") + ' <span class="req">' + t("form_required") + "</span>" +
           '<input name="name" type="text" required autocomplete="name" value="' + escapeAttr(kept.name || "") + '" placeholder="' + escapeAttr(t("ph_name")) + '">' +
         "</label>" +
-        '<label class="field">' + t("form_email") +
+        '<label class="field">' + t("form_email") + ' <span class="req">' + t("form_required") + "</span>" +
           '<input name="email" type="email" required autocomplete="email" inputmode="email" value="' + escapeAttr(kept.email || "") + '" placeholder="' + escapeAttr(t("ph_email")) + '">' +
         "</label>" +
-        '<label class="field">' + t("form_phone") +
+        '<label class="field">' + t("form_phone") + ' <span class="req">' + t("form_optional") + "</span>" +
           '<input name="phone" type="tel" autocomplete="tel" value="' + escapeAttr(kept.phone || "") + '" placeholder="' + escapeAttr(t("ph_phone")) + '">' +
         "</label>" +
         '<label class="field">' + t("form_interest") +
@@ -141,12 +153,12 @@
             '<option value="set"' + setSel + ">" + t("opt_set") + "</option>" +
           "</select>" +
         "</label>" +
-        '<label class="field">' + t("form_note") +
+        '<label class="field">' + t("form_note") + ' <span class="req">' + t("form_optional") + "</span>" +
           '<textarea name="note" placeholder="' + escapeAttr(t("ph_note")) + '">' + escapeText(kept.note || "") + "</textarea>" +
         "</label>" +
         '<p class="form-error" id="form-error" role="alert"></p>' +
+        '<p class="fine" id="form-notice">' + t("form_fine") + ' <a href="privacy.html">' + t("form_privacy") + "</a>.</p>" +
         '<button class="btn btn-dark" type="submit">' + t("form_submit") + "</button>" +
-        '<p class="fine">' + t("form_fine") + "</p>" +
       "</form>"
     );
   }
@@ -157,16 +169,32 @@
       var product = window.DEROY.products[id];
       return (
         '<a class="pcard" href="product.html?id=' + id + '&view=bag">' +
-          '<span class="pcard-media"><img src="' + product.bag + '" alt="' + colorName(id) + '"></span>' +
+          '<span class="pcard-media"><img src="' + product.bag + '" alt=""></span>' +
           '<span class="pcard-name">' + colorName(id) + "</span>" +
           '<span class="pcard-more">' + window.DEROY.t("explore") + "</span>" +
         "</a>"
       );
     }).join("");
     return (
-      '<div class="section"><p class="chooser-note">' + note + "</p>" +
+      '<div class="section"><h1>' + note + "</h1>" +
       '<div class="grid-2">' + cards + "</div></div>"
     );
+  }
+
+  function clearInvalid(form) {
+    form.querySelectorAll("[aria-invalid]").forEach(function (el) {
+      el.removeAttribute("aria-invalid");
+      el.removeAttribute("aria-describedby");
+    });
+  }
+
+  function failField(form, input, message) {
+    var error = document.getElementById("form-error");
+    clearInvalid(form);
+    error.textContent = message;
+    input.setAttribute("aria-invalid", "true");
+    input.setAttribute("aria-describedby", "form-error");
+    input.focus();
   }
 
   function onReserve(event) {
@@ -177,15 +205,14 @@
     var email = form.email.value.trim();
     var t = window.DEROY.t;
     if (!name) {
-      error.textContent = t("err_name");
-      form.name.focus();
+      failField(form, form.name, t("err_name"));
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      error.textContent = t("err_email");
-      form.email.focus();
+      failField(form, form.email, t("err_email"));
       return;
     }
+    clearInvalid(form);
     error.textContent = "";
     var params = new URLSearchParams(window.location.search);
     reserved = { id: params.get("id") };

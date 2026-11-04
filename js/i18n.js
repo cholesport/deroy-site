@@ -82,8 +82,12 @@
       opt_set: "Bag + stroller liner",
       form_note: "Note",
       form_submit: "Send request",
-      form_fine: "A request, not a payment. We’ll reply by email.",
-      form_ok: "Thank you. We’ll be in touch about {name}.",
+      form_fine: "A request, not a payment. What you type stays in this browser and is not sent or stored.",
+      form_privacy: "Privacy policy",
+      form_required: "Required",
+      form_optional: "Optional",
+      form_ok: "Thank you. Nothing was sent or stored, so this request has not reached us.",
+      gallery_label: "Photographs",
       err_name: "Please add your name.",
       err_email: "Please add a valid email.",
       chooser_note: "Choose a colour story.",
@@ -237,9 +241,6 @@
     next = "en";
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
-    try {
-      localStorage.setItem("deroy-lang", next);
-    } catch (err) {}
 
     var dict = DICT[next];
     document.querySelectorAll("[data-i18n]").forEach(function (el) {

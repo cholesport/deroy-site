@@ -5,8 +5,8 @@
   --sand: #e6e0d4;
   --caption: #f3efe8;
   --ink: #1c1c1c;
-  --muted: #8d8880;
-  --soft: #b1aba3;
+  --muted: #5c574f;
+  --soft: #5c574f;
   --line: #e4dfd6;
   --photo: #eceae6;
   --serif: "Cormorant Garamond", "Times New Roman", serif;
@@ -72,11 +72,11 @@ textarea {
 .skip {
   position: absolute;
   inset-inline-start: 12px;
-  top: -40px;
+  top: -48px;
   background: var(--ink);
   color: white;
   padding: 8px 12px;
-  z-index: 20;
+  z-index: 30;
 }
 
 .skip:focus {
@@ -215,11 +215,15 @@ textarea {
   letter-spacing: -0.02em;
 }
 
+.section h1,
 .section h2 {
   margin: 0;
+  font-weight: 500;
   font-size: clamp(2.4rem, 5vw, 4rem);
   line-height: 1.08;
+  letter-spacing: -0.02em;
   white-space: pre-line;
+  text-align: center;
 }
 
 .lede,
@@ -453,12 +457,124 @@ textarea {
 }
 
 .legal {
-  margin: 0;
+  margin: 14px 0 0;
   font-family: var(--sans);
-  font-size: 11px;
-  letter-spacing: 0.22em;
+  font-size: 12px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #6f6a64;
+  color: #4f4a44;
+}
+
+.legal-nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin-top: 18px;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.legal-nav a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.req {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.fine a,
+.form-success a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.form-success:focus {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+#content:focus {
+  outline: none;
+}
+
+.legal-shell {
+  width: min(740px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 48px 0 96px;
+}
+
+.legal-switch {
+  display: flex;
+  gap: 18px;
+  margin: 0 0 28px;
+  font-family: var(--sans);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.legal-switch a {
+  unicode-bidi: isolate;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-page h1,
+.legal-page h2 {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.legal-page h1 {
+  margin: 0 0 10px;
+  font-size: clamp(2.3rem, 5vw, 3.5rem);
+}
+
+.legal-page h2 {
+  margin: 2rem 0 0.45rem;
+  font-size: 1.55rem;
+}
+
+.legal-page p,
+.legal-page li {
+  margin: 0.7rem 0 0;
+  font-size: 1.08rem;
+}
+
+.legal-page ul {
+  margin: 0.4rem 0 0;
+  padding-inline-start: 1.25em;
+}
+
+.legal-page a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-page .updated {
+  margin-top: 0;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.legal-page + .legal-page {
+  margin-top: 56px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+}
+
+.he-copy {
+  font-family: "Heebo", "Avenir Next", "Helvetica Neue", sans-serif;
 }
 
 .page-intro {
@@ -584,7 +700,7 @@ input[type="tel"] {
 .form-error {
   min-height: 1.2em;
   margin: 0 0 8px;
-  color: #8a3d32;
+  color: #6e2c24;
   font-size: 0.95rem;
 }
 
@@ -685,5 +801,11 @@ textarea:focus-visible {
   .story img,
   .btn {
     transition: none;
+  }
+
+  .btn:hover,
+  .pcard:hover img,
+  .story:hover img {
+    transform: none;
   }
 }
